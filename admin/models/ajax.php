@@ -42,14 +42,6 @@ class VlogsModelAjax extends JModelList
 		return $catalog;
 	}
 
-	protected function savefile($fname, $val)
-	{
-		$file = fopen( $fname, 'w' );
-		fwrite( $file, print_r( $val, true ) );
-		flush();
-		fclose( $file );
-	}
-
 	public function List()
 	{
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
@@ -87,8 +79,6 @@ class VlogsModelAjax extends JModelList
 		{
 			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
-
-		$this->savefile('d:\1.txt', $html);
 
 		$this->printJson(implode('', $html), true, ['count' => count($data)]);
 	}
