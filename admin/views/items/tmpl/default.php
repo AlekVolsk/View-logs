@@ -11,28 +11,7 @@ JHtml::_('jquery.framework');
 <form action="<?php echo JRoute::_('index.php?option=com_vlogs&view=items'); ?>" method="post" name="adminForm" id="adminForm">
 	<div id="j-main-container">
 		
-		<div style="display:flex;margin-bottom:18px;">
-			<select id="view_select_files" name="view_select_files">
-				<?php foreach ($this->items as $item) { ?>
-				<option value="<?php echo $item; ?>"><?php echo $item; ?></option>
-				<?php } ?>
-			</select>
-			<button id="view_refresh_file" type="button" class="btn btn-success" style="margin-left:9px;height:28px"><?php echo JText::_('COM_VLOGS_REFRESH_BUTTON'); ?></button>
-			<button id="view_delete_file" type="button" class="btn btn-danger" style="margin-left:9px;height:28px"><?php echo JText::_('COM_VLOGS_DELETEFILE_BUTTON'); ?></button>
-		</div>
-		
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th width="10%"><?php echo JText::_('COM_VLOGS_COLUMN_DT'); ?></th>
-					<th width="5%"><?php echo JText::_('COM_VLOGS_COLUMN_PRIORITY'); ?></th>
-					<th width="5%"><?php echo JText::_('COM_VLOGS_COLUMN_IP'); ?></th>
-					<th width="5%"><?php echo JText::_('COM_VLOGS_COLUMN_CATEGORY'); ?></th>
-					<th><?php echo JText::_('COM_VLOGS_COLUMN_MSG'); ?></th>
-				</tr>
-			</thead>
-			<tbody id="view_items_list"></tbody>
-		</table>
+		<div id="view_items_list"></div>
 		
 		<input type="hidden" name="task" value="" />
 		<?php echo JHtml::_('form.token'); ?>
@@ -58,6 +37,16 @@ jQuery(document).ready(function($)
 	document.querySelector('#view_refresh_file').addEventListener('click', function(e)
 	{
 		getLog(document.querySelector('#view_select_files').value);
+	});
+	
+	document.querySelector('#view_download_file').addEventListener('click', function(e)
+	{
+		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=0&filename=' + document.querySelector('#view_select_files').value;
+	});
+	
+	document.querySelector('#view_download_bom_file').addEventListener('click', function(e)
+	{
+		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=1&filename=' + document.querySelector('#view_select_files').value;
 	});
 	
 	document.querySelector('#view_delete_file').addEventListener('click', function(e)

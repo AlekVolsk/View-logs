@@ -28,18 +28,59 @@ class VlogsModelAjax extends JModelList
 
 	private function getCSV($file, $delimiter = ';')
 	{
-		$catalog = [];
+		$a = [];
 
 		if (($handle = fopen($file, 'r')) !== false)
 		{
 			while (($data = fgetcsv($handle, 10000, $delimiter)) !== false)
 			{
-				$catalog[] = $data;
+				$a[] = $data;
 		    }
 		    fclose($handle);
 		}
 
-		return $catalog;
+		return $a;
+	}
+
+	private function setCSV($file, $data, $delimiter = ';', $bom = false)
+	{
+		if (($handle = fopen($file, 'w')) !== false)
+		{
+			if ($bom)
+			{
+				fwrite($handle, b"\xEF\xBB\xBF");
+			}
+			foreach ($data as $item)
+			{
+				fputcsv($handle, $item, $delimiter);
+		    }
+		    fclose($handle);
+		}
+	}
+
+	private function file_force_download($file)
+	{
+		set_time_limit(0);
+		if (file_exists($file))
+		{
+			if (ob_get_level())
+			{
+				ob_end_clean();
+			}
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/zip');
+			header('Content-Disposition: attachment; filename=' . basename($file));
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($file));
+			return (bool)readfile($file);
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public function List()
@@ -58,29 +99,79 @@ class VlogsModelAjax extends JModelList
 
 		$data = array_reverse($data);
 		$html = [];
-
-		foreach ($data as $i => $item)
+		$cnt = count($data);
+		
+		if ($cnt)
 		{
-			$date = new DateTime($item[0]);
-			$timestamp = $date->format('U');
-			
-			$subitem = explode(' ', $item[1]);
+			$html[] = '<table class="table table-striped"><thead><tr>';
+			$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_DT') . '</th>';
+			$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_PRIORITY') . '</th>';
+			$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_IP') . '</th>';
+			$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_CATEGORY') . '</th>';
+			$html[] = '<th>' . JText::_('COM_VLOGS_COLUMN_MSG') . '</th>';
+			$html[] = '</tr></thead><tbody>';
 
-			$html[] = '<tr class="row' . ($i % 2) . '">' .
-				'<td class="nowrap">' . JHtml::_('date', $timestamp, 'd.m.Y H:i:s') . '</td>' .
-				'<td>' . $subitem[0] . '</td>' .
-				'<td>' . $subitem[1] . '</td>' .
-				'<td>' . $item[2] . '</td>' .
-				'<td>' . htmlspecialchars($item[3]) . '</td>' .
-			'</tr>';
+			foreach ($data as $i => $item)
+			{
+				$date = new DateTime($item[0]);
+				$timestamp = $date->format('U');
+				
+				$subitem = explode(' ', $item[1]);
+
+				$html[] = '<tr class="row' . ($i % 2) . '">' .
+					'<td class="nowrap">' . JHtml::_('date', $timestamp, 'd.m.Y H:i:s') . '</td>' .
+					'<td>' . trim($subitem[0]) . '</td>' .
+					'<td>' . trim($subitem[1]) . '</td>' .
+					'<td>' . $item[2] . '</td>' .
+					'<td>' . htmlspecialchars($item[3]) . '</td>' .
+				'</tr>';
+			}
+
+			$html[] = '</tbody></table>';
+
 		}
-
-		if (!$html)
+		else
 		{
 			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
 
-		$this->printJson(implode('', $html), true, ['count' => count($data)]);
+		$this->printJson(implode('', $html), true, ['count' => $cnt]);
+	}
+
+	public function dwFile()
+	{
+		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
+		$file = filter_input(INPUT_GET, 'filename');
+		$bom = (bool)filter_input(INPUT_GET, 'bom');
+		
+		$data = $this->getCSV($log_path . '/' . $file, '	');
+		foreach ($data as $i => $item)
+		{
+			if (count($item) < 4 || $item[0][0] == '#')
+			{
+				unset($data[$i]);
+			}
+			else
+			{
+				$subitem = explode(' ', $item[1]);
+				$data[$i][4] = $item[3];
+				$data[$i][3] = $item[2];
+				$data[$i][2] = trim($subitem[1]);
+				$data[$i][1] = trim($subitem[0]);
+			}
+		}
+
+		$data = array_reverse($data);
+		
+		$fpath = str_replace('\\', '/', JFactory::getConfig()->get('tmp_path'));
+		$f = pathinfo($fpath . '/' . $file);
+		$file = $fpath . '/' . $f['filename'] . '_' . JHtml::_('date', time(), 'Y-m-d-H-i-s') . '.csv';
+		
+		$this->setCSV($file, $data, $bom ? ';' : ',', $bom);
+		$this->file_force_download($file);
+		unlink($file);
+		
+		exit;
 	}
 
 	public function DelFile()
