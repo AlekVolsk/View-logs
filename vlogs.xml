@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<extension type="component" version="3.2.0" method="upgrade">
+    <name>COM_VLOGS</name>
+    <author>Aleksey A. Morozov</author>
+    <authorEmail>alekvolsk@yandex.ru</authorEmail>
+    <authorUrl>https://alekvolsk.pw</authorUrl>
+    <copyright>© 2018 Aleksey A. Morozov. All right reserved.</copyright>
+    <license>GNU General Public License version 3 or later; see http://www.gnu.org/licenses/gpl-3.0.txt</license>
+    <version>1.0.0</version>
+    <description>COM_VLOGS_DESC</description>
+    <creationDate>March 2018</creationDate>
+    <administration>
+        <menu>COM_VLOGS</menu>
+        <files folder="admin">
+            <filename>vlogs.php</filename>
+            <filename>controller.php</filename>
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <folder>controllers</folder>
+            <folder>models</folder>
+            <folder>views</folder>
+        </files>
+        <languages folder="admin">
+            <language tag="ru-RU">language/ru-RU/ru-RU.com_vlogs.ini</language>
+            <language tag="ru-RU">language/ru-RU/ru-RU.com_vlogs.sys.ini</language>
+        </languages>
+    </administration>
+</extension>
