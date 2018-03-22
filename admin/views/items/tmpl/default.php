@@ -11,12 +11,14 @@ JHtml::_('jquery.framework');
 <form action="<?php echo JRoute::_('index.php?option=com_vlogs&view=items'); ?>" method="post" name="adminForm" id="adminForm">
 	<div id="j-main-container">
 		
-		<div>
+		<div style="display:flex;margin-bottom:18px;">
 			<select id="view_select_files" name="view_select_files">
 				<?php foreach ($this->items as $item) { ?>
 				<option value="<?php echo $item; ?>"><?php echo $item; ?></option>
 				<?php } ?>
 			</select>
+			<button id="view_refresh_file" type="button" class="btn btn-success" style="margin-left:9px;height:28px"><?php echo JText::_('COM_VLOGS_REFRESH_BUTTON'); ?></button>
+			<button id="view_delete_file" type="button" class="btn btn-danger" style="margin-left:9px;height:28px"><?php echo JText::_('COM_VLOGS_DELETEFILE_BUTTON'); ?></button>
 		</div>
 		
 		<table class="table table-striped">
@@ -43,21 +45,43 @@ jQuery(document).ready(function($)
 {
 	getLog = function(vfile)
 	{
-		$('#view_items_list').empty();
-		$('#view_count_items').text('0');
+		document.querySelector('#view_items_list').innerHTML = '';
+		document.querySelector('#view_count_items').innerHTML = '0';
 
 		$.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'List', filename:vfile}, function(response)
 		{
-			$('#view_items_list').html(response.message);
-			$('#view_count_items').text(response.count);
+			document.querySelector('#view_items_list').innerHTML = response.message;
+			document.querySelector('#view_count_items').innerHTML = response.count;
 		});
 	}
 	
+	document.querySelector('#view_refresh_file').addEventListener('click', function(e)
+	{
+		getLog(document.querySelector('#view_select_files').value);
+	});
+	
+	document.querySelector('#view_delete_file').addEventListener('click', function(e)
+	{
+		$.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'DelFile', filename:document.querySelector('#view_select_files').value}, function(response)
+		{
+			if (response.result)
+			{
+				var sel = document.querySelector('#view_select_files');
+				sel.removeChild(sel.options[sel.selectedIndex]);
+				getLog(sel.value);
+			}
+			else
+			{
+				alert('<?php echo JText::_('COM_VLOGS_DELETEFILE_ALERT'); ?>');
+			}
+		});
+	});
+
 	document.querySelector('#view_select_files').addEventListener('change', function(e)
 	{
 		getLog(e.target.value);
 	});
 
-	getLog($('#view_select_files option:selected').val());
+	getLog(document.querySelector('#view_select_files').value);
 });
 </script>

@@ -82,4 +82,12 @@ class VlogsModelAjax extends JModelList
 
 		$this->printJson(implode('', $html), true, ['count' => count($data)]);
 	}
+
+	public function DelFile()
+	{
+		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
+		$file = filter_input(INPUT_GET, 'filename');
+		
+		$this->printJson('', unlink($log_path . '/' . $file));
+	}
 }
