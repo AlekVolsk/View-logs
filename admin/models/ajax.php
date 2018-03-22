@@ -69,9 +69,13 @@ class VlogsModelAjax extends JModelList
 
 		foreach ($data as $i => $item)
 		{
+			$date = new DateTime($item[0]);
+			$timestamp = $date->format('U');
+			
 			$subitem = explode(' ', $item[1]);
+
 			$html[] = '<tr class="row' . ($i % 2) . '">' .
-				'<td>' . $item[0] . '</td>' .
+				'<td class="nowrap">' . JHtml::_('date', $timestamp, 'd.m.Y H:i:s') . '</td>' .
 				'<td>' . $subitem[0] . '</td>' .
 				'<td>' . $subitem[1] . '</td>' .
 				'<td>' . $item[2] . '</td>' .
