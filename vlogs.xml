@@ -6,7 +6,7 @@
     <authorUrl>https://alekvolsk.pw</authorUrl>
     <copyright>© 2018 Aleksey A. Morozov. All right reserved.</copyright>
     <license>GNU General Public License version 3 or later; see http://www.gnu.org/licenses/gpl-3.0.txt</license>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <description>COM_VLOGS_DESC</description>
     <creationDate>March 2018</creationDate>
     <administration>
@@ -25,4 +25,7 @@
             <language tag="ru-RU">language/ru-RU/ru-RU.com_vlogs.sys.ini</language>
         </languages>
     </administration>
+    <updateservers>
+        <server type="extension" priority="1" name="Telegram Callback">https://raw.githubusercontent.com/AlekVolsk/com_vlogs/master/update.xml</server>
+    </updateservers>
 </extension>
