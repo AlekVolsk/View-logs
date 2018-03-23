@@ -113,6 +113,9 @@ class VlogsModelAjax extends JModelList
 
 			foreach ($data as $i => $item)
 			{
+				$json = json_decode($item[3]);
+				$json_result = json_last_error() === JSON_ERROR_NONE;
+				
 				$date = new DateTime($item[0]);
 				$timestamp = $date->format('U');
 				
@@ -123,7 +126,7 @@ class VlogsModelAjax extends JModelList
 					'<td>' . trim($subitem[0]) . '</td>' .
 					'<td>' . trim($subitem[1]) . '</td>' .
 					'<td>' . $item[2] . '</td>' .
-					'<td>' . htmlspecialchars($item[3]) . '</td>' .
+					'<td>' . ($json_result ? '<pre>' . $json . '</pre>' : htmlspecialchars($item[3])) . '</td>' .
 				'</tr>';
 			}
 
