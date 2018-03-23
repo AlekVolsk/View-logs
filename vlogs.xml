@@ -26,6 +26,6 @@
         </languages>
     </administration>
     <updateservers>
-        <server type="extension" priority="1" name="Telegram Callback">https://raw.githubusercontent.com/AlekVolsk/com_vlogs/master/update.xml</server>
+        <server type="extension" priority="1" name="View Logs">https://raw.githubusercontent.com/AlekVolsk/com_vlogs/master/update.xml</server>
     </updateservers>
 </extension>
