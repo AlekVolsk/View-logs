@@ -68,7 +68,7 @@ class VlogsModelAjax extends JModelList
 				ob_end_clean();
 			}
 			header('Content-Description: File Transfer');
-			header('Content-Type: application/zip');
+			header('Content-Type: text/csv');
 			header('Content-Disposition: attachment; filename=' . basename($file));
 			header('Content-Transfer-Encoding: binary');
 			header('Expires: 0');
