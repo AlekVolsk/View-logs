@@ -17,5 +17,8 @@
 		<section>Updates</section>
 		<targetplatform name="joomla" version="3.2" />
 		<client>adimnistrator</client>
+		<ars-phpcompat version="7.0"/>
+		<ars-phpcompat version="7.1"/>
+		<ars-phpcompat version="7.2"/>
 	</update>
 </updates>
