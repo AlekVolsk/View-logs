@@ -4,6 +4,13 @@
  * @copyright   Copyright (C) 2018 Aleksey A. Morozov (AlekVolsk). All rights reserved.
  * @license     GNU General Public License version 3 or later; see http://www.gnu.org/licenses/gpl-3.0.txt
  */
+function savefile($fname, $val)
+{
+	$file = fopen( $fname, 'w' );
+	fwrite( $file, print_r( $val, true ) );
+	flush();
+	fclose( $file );
+}
 
 class VlogsModelAjax extends JModelList
 {
@@ -88,46 +95,97 @@ class VlogsModelAjax extends JModelList
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
 		$file = filter_input(INPUT_GET, 'filename');
 		
+		$columns = '';
 		$data = $this->getCSV($log_path . '/' . $file, '	');
 		for ($i = 0; $i < 6; $i++)
 		{
 			if (count($data[$i]) < 4 || $data[$i][0][0] == '#')
 			{
+				if (strpos($data[$i][0], '#Fields:') !== false)
+				{
+					$columns = $data[$i];
+				}
 				unset($data[$i]);
 			}
+		}
+		if ($columns)
+		{
+			$columns = explode(' ', implode(' ', $columns));
+			unset($columns[0]);
+			$columns = array_values($columns);
 		}
 
 		$data = array_reverse($data);
 		$html = [];
 		$cnt = count($data);
 		
-		if ($cnt)
+		if ($columns && $cnt)
 		{
 			$html[] = '<table class="table table-striped"><thead><tr>';
-			$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_DT') . '</th>';
-			$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_PRIORITY') . '</th>';
-			$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_IP') . '</th>';
-			$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_CATEGORY') . '</th>';
-			$html[] = '<th>' . JText::_('COM_VLOGS_COLUMN_MSG') . '</th>';
+			
+			foreach ($columns as $col)
+			{
+				switch ($col)
+				{
+					case 'datetime':
+						$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_DT') . '</th>';
+						break;
+					case 'priority':
+						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_PRIORITY') . '</th>';
+						break;
+					case 'clientip':
+						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_IP') . '</th>';
+						break;
+					case 'category':
+						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_CATEGORY') . '</th>';
+						break;
+					case 'message':
+						$html[] = '<th>' . JText::_('COM_VLOGS_COLUMN_MSG') . '</th>';
+						break;
+					default:
+						$html[] = '<th>' . $col . '</th>';
+				}
+			}
+			
 			$html[] = '</tr></thead><tbody>';
 
 			foreach ($data as $i => $item)
 			{
-				$json = json_decode($item[3]);
-				$json_result = json_last_error() === JSON_ERROR_NONE;
-				
-				$date = new DateTime($item[0]);
-				$timestamp = $date->format('U');
-				
-				$subitem = explode(' ', $item[1]);
+				if (count($item) == 1)
+				{
+					$item = explode(' ', $item[0]);
+				}
 
-				$html[] = '<tr class="row' . ($i % 2) . '">' .
-					'<td class="nowrap">' . JHtml::_('date', $timestamp, 'd.m.Y H:i:s') . '</td>' .
-					'<td>' . trim($subitem[0]) . '</td>' .
-					'<td>' . trim($subitem[1]) . '</td>' .
-					'<td>' . $item[2] . '</td>' .
-					'<td>' . ($json_result ? '<pre>' . $json . '</pre>' : htmlspecialchars($item[3])) . '</td>' .
-				'</tr>';
+				if (count($item) < count($columns))
+				{
+					$ci = count($item) - 1;
+					$msg = $item[$ci];
+					unset($item[$ci]);
+					$item = explode(' ', implode(' ', $item));
+					$item[] = $msg;
+					unset($msg);
+				}
+				
+				$html[] = '<tr class="row' . ($i % 2) . '">';
+				foreach ($item as $j => $dataitem)
+				{
+					switch ($columns[$j])
+					{
+						case 'datetime':
+							$date = new DateTime($dataitem);
+							$dataitem = $date->format('U');
+							$html[] = '<td>' . JHtml::_('date', $dataitem, 'd.m.Y H:i:s') . '</td>';
+							break;
+						case 'message':
+							$json = json_decode($dataitem, true);
+							$json_result = json_last_error() === JSON_ERROR_NONE;
+							$html[] = '<td>' . ($json_result ? '<pre>' . print_r($json, true) . '</pre>' : htmlspecialchars($dataitem)) . '</td>';
+							break;
+						default:
+							$html[] = '<td>' . $dataitem . '</td>';
+					}
+				}
+				$html[] = '</tr>';
 			}
 
 			$html[] = '</tbody></table>';
@@ -138,7 +196,7 @@ class VlogsModelAjax extends JModelList
 			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
 
-		$this->printJson(implode('', $html), true, ['count' => $cnt]);
+		$this->printJson(implode('', $html), true, ['count' => $cnt, 'cols' => $columns]);
 	}
 
 	public function dwFile()
@@ -150,17 +208,27 @@ class VlogsModelAjax extends JModelList
 		$data = $this->getCSV($log_path . '/' . $file, '	');
 		foreach ($data as $i => $item)
 		{
-			if (count($item) < 4 || $item[0][0] == '#')
+			if ($i < 6 && (count($item) < 4 || $item[0][0] == '#'))
 			{
 				unset($data[$i]);
 			}
 			else
 			{
-				$subitem = explode(' ', $item[1]);
-				$data[$i][4] = $item[3];
-				$data[$i][3] = $item[2];
-				$data[$i][2] = trim($subitem[1]);
-				$data[$i][1] = trim($subitem[0]);
+				if (count($item) == 1)
+				{
+					$item = explode(' ', $item[0]);
+				}
+				else
+				{
+					$ci = count($item) - 1;
+					$msg = $item[$ci];
+					unset($item[$ci]);
+					$item = explode(' ', implode(' ', $item));
+					$item[] = $msg;
+					unset($msg);
+				}
+
+				$data[$i] = $item;
 			}
 		}
 
