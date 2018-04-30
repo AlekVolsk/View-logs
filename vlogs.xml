@@ -21,6 +21,8 @@
             <folder>views</folder>
         </files>
         <languages folder="admin">
+            <language tag="en-GB">language/en-GB/en-GB.com_vlogs.ini</language>
+            <language tag="en-GB">language/en-GB/en-GB.com_vlogs.sys.ini</language>
             <language tag="ru-RU">language/ru-RU/ru-RU.com_vlogs.ini</language>
             <language tag="ru-RU">language/ru-RU/ru-RU.com_vlogs.sys.ini</language>
         </languages>
