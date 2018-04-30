@@ -125,7 +125,7 @@ class VlogsModelAjax extends JModelList
 			
 			foreach ($columns as $col)
 			{
-				switch ($col)
+				switch (strtolower($col))
 				{
 					case 'datetime':
 						$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_DT') . '</th>';
@@ -169,17 +169,47 @@ class VlogsModelAjax extends JModelList
 				$html[] = '<tr class="row' . ($i % 2) . '">';
 				foreach ($item as $j => $dataitem)
 				{
-					switch ($columns[$j])
+					switch (strtolower($columns[$j]))
 					{
 						case 'datetime':
 							$date = new DateTime($dataitem);
 							$dataitem = $date->format('U');
 							$html[] = '<td>' . JHtml::_('date', $dataitem, 'd.m.Y H:i:s') . '</td>';
 							break;
+						case 'priority':
+							switch (strtolower($dataitem)) {
+								case 'emergency':
+									$html[] = '<td class="text-error">' . $dataitem . '</td>';
+									break;
+								case 'alert':
+									$html[] = '<td class="text-warning">' . $dataitem . '</td>';
+									break;
+								case 'critical':
+									$html[] = '<td class="text-error">' . $dataitem . '</td>';
+									break;
+								case 'error':
+									$html[] = '<td class="text-error">' . $dataitem . '</td>';
+									break;
+								case 'warning':
+									$html[] = '<td class="text-warning">' . $dataitem . '</td>';
+									break;
+								case 'notice':
+									$html[] = '<td class="text-info">' . $dataitem . '</td>';
+									break;
+								case 'info':
+									$html[] = '<td class="text-info">' . $dataitem . '</td>';
+									break;
+								case 'debug':
+									$html[] = '<td class="text-info">' . $dataitem . '</td>';
+									break;
+								default:
+									$html[] = '<td>' . $dataitem . '</td>';
+							}
+							break;
 						case 'message':
 							$json = json_decode($dataitem, true);
 							$json_result = json_last_error() === JSON_ERROR_NONE;
-							$html[] = '<td>' . ($json_result ? '<pre>' . print_r($json, true) . '</pre>' : htmlspecialchars($dataitem)) . '</td>';
+							$html[] = '<td>' . ($json_result ? '<p><a onclick="jQuery(this).parent().next(\'pre\').slideToggle(200);" style="cursor:pointer">' . JText::_('COM_VLOGS_COLUMN_MSG_JSON_TITLE') . '</a></p><pre style="display:none">' . print_r($json, true) . '</pre>' : htmlspecialchars($dataitem)) . '</td>';
 							break;
 						default:
 							$html[] = '<td>' . $dataitem . '</td>';
