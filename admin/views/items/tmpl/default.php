@@ -18,7 +18,9 @@ JHtml::_('jquery.framework');
 		
 	</div>
 </form>
-			
+<style>
+.com_vlogs pre {box-sizing:border-box;max-width:100%;width:100%;}
+</style>			
 <script>
 jQuery(document).ready(function($)
 {

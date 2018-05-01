@@ -121,14 +121,20 @@ class VlogsModelAjax extends JModelList
 		
 		if ($columns && $cnt)
 		{
-			$html[] = '<table class="table table-striped"><thead><tr>';
+			$html[] = '<table class="com_vlogs table table-striped"><thead><tr>';
 			
 			foreach ($columns as $col)
 			{
-				switch (strtolower($col))
+				switch ($col)
 				{
 					case 'datetime':
 						$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_DT') . '</th>';
+						break;
+					case 'date':
+						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_DATE') . '</th>';
+						break;
+					case 'time':
+						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_TIME') . '</th>';
 						break;
 					case 'priority':
 						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_PRIORITY') . '</th>';
@@ -140,7 +146,9 @@ class VlogsModelAjax extends JModelList
 						$html[] = '<th width="5%">' . JText::_('COM_VLOGS_COLUMN_CATEGORY') . '</th>';
 						break;
 					case 'message':
-						$html[] = '<th>' . JText::_('COM_VLOGS_COLUMN_MSG') . '</th>';
+						$cw = (count($columns) - 1) * 5;
+						if (in_array('datetime', $columns)) $cw += 5;
+						$html[] = '<th width="' . (100 - $cw) . '%">' . JText::_('COM_VLOGS_COLUMN_MSG') . '</th>';
 						break;
 					default:
 						$html[] = '<th>' . $col . '</th>';
@@ -174,7 +182,7 @@ class VlogsModelAjax extends JModelList
 						case 'datetime':
 							$date = new DateTime($dataitem);
 							$dataitem = $date->format('U');
-							$html[] = '<td>' . JHtml::_('date', $dataitem, 'd.m.Y H:i:s') . '</td>';
+							$html[] = '<td class="nowrap">' . JHtml::_('date', $dataitem, 'Y-m-d H:i:s') . '</td>';
 							break;
 						case 'priority':
 							switch (strtolower($dataitem)) {
