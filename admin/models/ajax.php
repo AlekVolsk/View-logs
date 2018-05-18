@@ -39,7 +39,7 @@ class VlogsModelAjax extends JModelList
 
 		if (($handle = fopen($file, 'r')) !== false)
 		{
-			while (($data = fgetcsv($handle, 10000, $delimiter)) !== false)
+			while (($data = fgetcsv($handle, JComponentHelper::getParams('com_vlogs')->get('slen', 32768), $delimiter)) !== false)
 			{
 				$a[] = $data;
 		    }
