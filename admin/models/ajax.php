@@ -33,13 +33,32 @@ class VlogsModelAjax extends JModelList
 		exit;
 	}
 
-	private function getCSV($file, $delimiter = ';')
+	private function getPhpLog()
 	{
 		$a = [];
 
+		if (($handle = fopen(ini_get('error_log'), 'r')) !== false)
+		{
+			while (($data = fgets($handle)) !== false)
+			{
+				$a[] = $data;
+		    }
+		    fclose($handle);
+		}
+		
+		$a = array_reverse($a);
+
+		return $a;
+	}
+
+	private function getCSV($file, $delimiter = ';')
+	{
+		$a = [];
+		$slen = JComponentHelper::getParams('com_vlogs')->get('slen', 32768);
+
 		if (($handle = fopen($file, 'r')) !== false)
 		{
-			while (($data = fgetcsv($handle, JComponentHelper::getParams('com_vlogs')->get('slen', 32768), $delimiter)) !== false)
+			while (($data = fgetcsv($handle, $slen, $delimiter)) !== false)
 			{
 				$a[] = $data;
 		    }
@@ -90,11 +109,71 @@ class VlogsModelAjax extends JModelList
 		}
 	}
 
+	protected function ListPHPEL()
+	{
+		$data = $this->getPhpLog();
+		$cnt = 0;
+		$html = [];
+
+		if (!empty($data))
+		{
+			$html[] = '<table class="com_vlogs table table-striped"><thead><tr>';
+			$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_DT') . '</th>';
+			$html[] = '<th width="10%">' . JText::_('COM_VLOGS_COLUMN_PRIORITY') . '</th>';
+			$html[] = '<th width="80%">' . JText::_('COM_VLOGS_COLUMN_MSG') . '</th>';
+			$html[] = '</tr></thead><tbody>';
+
+			foreach ($data as $item)
+			{
+				if (empty($item))
+				{
+					continue;
+				}
+				$tmp = explode('] ', $item);
+				$date = substr($tmp[0], 1, strlen($tmp[0])-1);
+				$date = explode(' ', $date);
+				$date = new DateTime($date[0] . 'T' . $date[1], new DateTimeZone($date[2]));
+				$date = date_format($date, 'Y-m-d H:i:s');
+				[$type, $msg] = explode(':  ', $tmp[1]);
+				$html[] = '<tr>';
+				$html[] = '<td>' . $date . '</td>';
+				switch ($type) {
+					case 'PHP Error':
+						$html[] = '<td class="text-error">' . $type . '</td>';
+						break;
+					case 'PHP Warning':
+						$html[] = '<td class="text-warning">' . $type . '</td>';
+						break;
+					case 'PHP Notice':
+						$html[] = '<td class="text-info">' . $type . '</td>';
+						break;
+					default:
+						$html[] = '<td>' . $type . '</td>';
+				}
+				$html[] = '<td>' . $msg . '</td>';
+				$html[] = '</tr>';
+				$cnt++;
+			}
+			$html[] = '</tbody></table>';
+		}
+		else
+		{
+			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
+		}
+
+		$this->printJson(implode('', $html), true, ['count' => $cnt]);
+	}
+	
 	public function List()
 	{
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
 		$file = filter_input(INPUT_GET, 'filename');
 		
+		if ($file === 'PHP error log')
+		{
+			$this->ListPHPEL();
+		}
+
 		$columns = '';
 		$data = $this->getCSV($log_path . '/' . $file, '	');
 		for ($i = 0; $i < 6; $i++)
@@ -234,7 +313,7 @@ class VlogsModelAjax extends JModelList
 			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
 
-		$this->printJson(implode('', $html), true, ['count' => $cnt, 'cols' => $columns]);
+		$this->printJson(implode('', $html), true, ['count' => $cnt]);
 	}
 
 	public function dwFile()
@@ -242,39 +321,64 @@ class VlogsModelAjax extends JModelList
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
 		$file = filter_input(INPUT_GET, 'filename');
 		$bom = (bool)filter_input(INPUT_GET, 'bom');
+		$fpath = str_replace('\\', '/', JFactory::getConfig()->get('tmp_path'));
 		
-		$data = $this->getCSV($log_path . '/' . $file, '	');
-		foreach ($data as $i => $item)
+		if ($file === 'PHP error log')
 		{
-			if ($i < 6 && (count($item) < 4 || $item[0][0] == '#'))
+			$data = [];
+			$log = $this->getPhpLog();
+			foreach ($log as $item)
 			{
-				unset($data[$i]);
-			}
-			else
-			{
-				if (count($item) == 1)
+				if (empty($item))
 				{
-					$item = explode(' ', $item[0]);
+					continue;
+				}
+				$tmp = explode('] ', $item);
+				$date = substr($tmp[0], 1, strlen($tmp[0])-1);
+				$date = explode(' ', $date);
+				$date = new DateTime($date[0] . 'T' . $date[1], new DateTimeZone($date[2]));
+				$date = date_format($date, 'Y-m-d H:i:s');
+				[$type, $msg] = explode(':  ', $tmp[1]);
+				$data[] = [$date, $type, trim($msg)];
+			}
+
+			$fileName = pathinfo(ini_get('error_log'))['filename'];
+		}
+		else
+		{		
+			$data = $this->getCSV($log_path . '/' . $file, '	');
+			foreach ($data as $i => $item)
+			{
+				if ($i < 6 && (count($item) < 4 || $item[0][0] == '#'))
+				{
+					unset($data[$i]);
 				}
 				else
 				{
-					$ci = count($item) - 1;
-					$msg = $item[$ci];
-					unset($item[$ci]);
-					$item = explode(' ', implode(' ', $item));
-					$item[] = $msg;
-					unset($msg);
-				}
+					if (count($item) == 1)
+					{
+						$item = explode(' ', $item[0]);
+					}
+					else
+					{
+						$ci = count($item) - 1;
+						$msg = $item[$ci];
+						unset($item[$ci]);
+						$item = explode(' ', implode(' ', $item));
+						$item[] = $msg;
+						unset($msg);
+					}
 
-				$data[$i] = $item;
+					$data[$i] = $item;
+				}
 			}
+
+			$fileName = pathinfo($fpath . '/' . $file)['filename'];
 		}
 
 		$data = array_reverse($data);
 		
-		$fpath = str_replace('\\', '/', JFactory::getConfig()->get('tmp_path'));
-		$f = pathinfo($fpath . '/' . $file);
-		$file = $fpath . '/' . $f['filename'] . '_' . JHtml::_('date', time(), 'Y-m-d-H-i-s') . '.csv';
+		$file = $fpath . '/' . $fileName . '_' . JHtml::_('date', time(), 'Y-m-d-H-i-s') . '.csv';
 		
 		$this->setCSV($file, $data, $bom ? ';' : ',', $bom);
 		$this->file_force_download($file);

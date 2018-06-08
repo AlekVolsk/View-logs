@@ -12,6 +12,7 @@ class VlogsModelItems extends JModelList
 		$config = JFactory::getConfig();
 		$log_path = str_replace('\\', '/', $config->get('log_path'));
 		$items = glob($log_path . '/*.*');
+		
 		foreach ($items as $i => &$item)
 		{
 			$item = basename($item);
@@ -20,6 +21,14 @@ class VlogsModelItems extends JModelList
 				unset($items[$i]);
 			}
 		}
-		return array_values($items);
+		$items = array_values($items);
+		
+		$phpErrorLog = ini_get('error_log');
+		if (file_exists($phpErrorLog))
+		{
+			$items[] = 'PHP error log';
+		}
+		
+		return $items;
 	}
 }
