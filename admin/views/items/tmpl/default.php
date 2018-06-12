@@ -63,7 +63,7 @@ jQuery(document).ready(function($)
 			}
 			else
 			{
-				alert('<?php echo JText::_('COM_VLOGS_DELETEFILE_ALERT'); ?>');
+				alert(response.message);
 			}
 		});
 	});

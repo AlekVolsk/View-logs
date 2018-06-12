@@ -392,6 +392,13 @@ class VlogsModelAjax extends JModelList
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
 		$file = filter_input(INPUT_GET, 'filename');
 		
-		$this->printJson('', unlink($log_path . '/' . $file));
+		if ($file !== 'PHP error log')
+		{
+			$this->printJson(JText::_('COM_VLOGS_DELETEFILE_ALERT'), unlink($log_path . '/' . $file));
+		}
+		else
+		{
+			$this->printJson(JText::_('COM_VLOGS_NO_DELETE_PHP_LOG') . '   ' . $file, false);
+		}
 	}
 }
