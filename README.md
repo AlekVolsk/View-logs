@@ -1,37 +1,29 @@
-# com_vlogs
+# View logs
 
+### Component view the saved logs of core and extensions Joomla
 
-### Компонент просмотра сохраненных логов ядра и расширений Joomla
+**Scope**:
 
+- reading log files and displaying their contents in a tabular form in the admin panel
 
-**Возможности**:
+- autoexpand json-string message when viewing log in admin panel, <br>(upd 1.1.0) correct json output with deep nesting of objects, <br>(upd 1.1.1) collapse (accordion) of json-message block to save screen space
 
-– чтение файлов логов и вывод их содержимого в табличном виде в админке
+- ability to download the log file in CVS format (two options: classic and specially for opening in MS-Excel)
 
-– авторазворачивание json-строки сообщения при просмотре лога в админке,<br>(upd 1.1.0) корректный вывод json с глубокой вложенностью объектов,<br>(upd 1.1.1) сворачивание (аккордеон) блока json-сообщения для экономии экранного пространства
+- ability to delete log file
 
-– возможность скачать файл лога в формате CVS (два варианта: классический и специально для открытия в excel без плясок с бубном)
+- (upd 1.1.0) correct reading of log files with non-standard columns
 
-– возможность удалить файл лога
+- (upd 1.2.0) reading PHP error log file (provided that it is installed in php.ini and available for reading from the site)
 
-– (upd 1.1.0) корректное чтение файлов логов с нестандартными колонками
+**Requirements**:
 
-– (upd 1.2.0) чтение файла лога ошибок PHP (при условии, что он установлен в php.ini и доступен для чтения с сайта)
+- Joomla 3.2 or later (com_ajax involved)
 
+- PHP 5.6 or later
 
-**Требования**:
-
-– Joomla 3.2 и выше (задействован com_ajax)
-
-– PHP 5.6 и выше
-
-
-**Минус**: файл лога читается и выводится целиком, если он большой, то это займет время, создаст нагрузку на ресурсы и трафик, поэтому
-
-
-**Рекомендация разработчикам расширений**: при интенсивном логировании предусмотрите авторазбиение логов на части, по типам задач, по периода, еще как-либо, но чтобы логи ваши не весили мегатонны
-
+**Disadvantage**: the log file is read and displayed entirely, if it is large, it will take time, create a load on resources and traffic, so <br>**Recommendation for extension developers**: with intensive logging provide avtorezina logs into parts, task types, period, either, but that logs your not weighed megatons
 
 <img src="https://image.prntscr.com/image/pbf3-h1UT8G8QvcGtZ3Hbw.png">
 
-О том, как в собственном расширении использовать логирование, можно узнать из документаци Joomla: https://docs.joomla.org/Using_JLog#Logging_a_specific_log_file
+About how the native extension to use logging, see the Joomla documentation: https://docs.joomla.org/Using_JLog#Logging_a_specific_log_file
