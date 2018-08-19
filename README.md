@@ -1,5 +1,7 @@
 # View logs
 
+![Github Releases](https://img.shields.io/github/downloads/AlekVolsk/com_vlogs/latest/total.svg)
+
 ### Component view the saved logs of core and extensions Joomla
 
 **Scope**:
