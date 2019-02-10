@@ -4,13 +4,6 @@
  * @copyright   Copyright (C) 2018 Aleksey A. Morozov (AlekVolsk). All rights reserved.
  * @license     GNU General Public License version 3 or later; see http://www.gnu.org/licenses/gpl-3.0.txt
  */
-function savefile($fname, $val)
-{
-	$file = fopen( $fname, 'w' );
-	fwrite( $file, print_r( $val, true ) );
-	flush();
-	fclose( $file );
-}
 
 class VlogsModelAjax extends JModelList
 {
@@ -399,6 +392,37 @@ class VlogsModelAjax extends JModelList
 		else
 		{
 			$this->printJson(JText::_('COM_VLOGS_NO_DELETE_PHP_LOG') . '   ' . $file, false);
+		}
+	}
+
+	public function ArchiveFile()
+	{
+		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
+		$file = filter_input(INPUT_GET, 'filename');
+        
+		if ($file !== 'PHP error log')
+		{
+            if (!extension_loaded('zip')) {
+                $this->printJson(JText::_('COM_VLOGS_NO_PHPZIP'), false);
+            }
+    
+            $zip = new ZipArchive();
+            
+            $archFile = pathinfo($log_path . '/' . $file, PATHINFO_FILENAME) . '__' . date('Y-m-d_h-i-s') . '.zip';
+            $archPath = $log_path . '/' . $archFile;
+            
+            if ($zip->open($archPath, ZIPARCHIVE::CREATE) !== true) {
+                $this->printJson(JText::_('COM_VLOGS_ARCHIVEFILE_ERROR_CREATE'), false);
+            } else {
+                $zip->addFile($log_path . '/' . $file, $file);
+                $zip->close();
+            }
+    
+			$this->printJson(JText::sprintf('COM_VLOGS_ARCHIVEFILE_ALERT', $file, $archFile), true);
+		}
+		else
+		{
+            $this->printJson(JText::_('COM_VLOGS_NO_ARCHIVE_PHP_LOG') . '   ' . $file, false);
 		}
 	}
 }

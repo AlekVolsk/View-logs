@@ -18,6 +18,8 @@
 
 - (upd 1.2.0) reading PHP error log file (provided that it is installed in php.ini and available for reading from the site)
 
+- (upd 1.3.0) archiving a log file to an archive with a log file name + current datetime (assuming the php-zip extension is connected), the log file is not cleared or deleted, the archive is saved next to the log
+
 **Requirements**:
 
 - Joomla 3.2 or later (com_ajax involved)

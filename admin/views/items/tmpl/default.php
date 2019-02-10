@@ -22,14 +22,16 @@ JHtml::_('jquery.framework');
 .com_vlogs pre {box-sizing:border-box;max-width:100%;width:100%;}
 </style>			
 <script>
-jQuery(document).ready(function($)
+document.addEventListener('DOMContentLoaded', function()
 {
 	getLog = function(vfile)
 	{
+		Joomla.removeMessages();
+
 		document.querySelector('#view_items_list').innerHTML = '';
 		document.querySelector('#view_count_items').innerHTML = '0';
 
-		$.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'List', filename:vfile}, function(response)
+		jQuery.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'List', filename:vfile}, function(response)
 		{
 			document.querySelector('#view_items_list').innerHTML = response.message;
 			document.querySelector('#view_count_items').innerHTML = response.count;
@@ -43,17 +45,20 @@ jQuery(document).ready(function($)
 	
 	document.querySelector('#view_download_file').addEventListener('click', function(e)
 	{
+		Joomla.removeMessages();
 		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=0&filename=' + document.querySelector('#view_select_files').value;
 	});
 	
 	document.querySelector('#view_download_bom_file').addEventListener('click', function(e)
 	{
+		Joomla.removeMessages();
 		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=1&filename=' + document.querySelector('#view_select_files').value;
 	});
 	
 	document.querySelector('#view_delete_file').addEventListener('click', function(e)
 	{
-		$.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'DelFile', filename:document.querySelector('#view_select_files').value}, function(response)
+		Joomla.removeMessages();
+		jQuery.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'DelFile', filename:document.querySelector('#view_select_files').value}, function(response)
 		{
 			if (response.result)
 			{
@@ -63,7 +68,8 @@ jQuery(document).ready(function($)
 			}
 			else
 			{
-				alert(response.message);
+				Joomla.JText.load({error:"<?php echo JText::_('ERROR'); ?>"});
+				Joomla.renderMessages({'error':[response.message]});
 			}
 		});
 	});
@@ -71,6 +77,24 @@ jQuery(document).ready(function($)
 	document.querySelector('#view_select_files').addEventListener('change', function(e)
 	{
 		getLog(e.target.value);
+	});
+	
+	document.querySelector('#view_archive_file').addEventListener('click', function(e)
+	{
+		Joomla.removeMessages();
+		jQuery.getJSON('index.php', {option:'com_vlogs', task:'getAjax', action:'ArchiveFile', filename:document.querySelector('#view_select_files').value}, function(response)
+		{
+			if (response.result)
+			{
+				Joomla.JText.load({info:"<?php echo JText::_('INFO'); ?>"});
+				Joomla.renderMessages({'info':[response.message]});
+			}
+			else
+			{
+				Joomla.JText.load({error:"<?php echo JText::_('ERROR'); ?>"});
+				Joomla.renderMessages({'error':[response.message]});
+			}
+		});
 	});
 
 	getLog(document.querySelector('#view_select_files').value);
