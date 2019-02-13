@@ -387,7 +387,8 @@ class VlogsModelAjax extends JModelList
 		
 		if ($file !== 'PHP error log')
 		{
-			$this->printJson(JText::_('COM_VLOGS_DELETEFILE_ALERT'), unlink($log_path . '/' . $file));
+			$result = unlink($log_path . '/' . $file);
+			$this->printJson($result ? JText::sprintf('COM_VLOGS_DELETEFILE_SUCCESS', $file) : JText::_('COM_VLOGS_DELETEFILE_ALERT'), $result);
 		}
 		else
 		{
@@ -397,6 +398,18 @@ class VlogsModelAjax extends JModelList
 
 	public function ArchiveFile()
 	{
+		$apath = JComponentHelper::getParams('com_vlogs')->get('apath', 'tmp');
+		
+		if (!$apath) {
+            $this->printJson(JText::_('COM_VLOGS_ARCHIVEFILE_NO_FOLDER'), false);
+		}
+
+		$apath = str_replace('\\', '/', JPATH_ROOT . '/' . $apath);
+		
+		if (!is_dir($apath)) {
+            $this->printJson(JText::_('COM_VLOGS_ARCHIVEFILE_NO_EXISTS_FOLDER'), false);
+		}
+
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
 		$file = filter_input(INPUT_GET, 'filename');
         
@@ -408,8 +421,8 @@ class VlogsModelAjax extends JModelList
     
             $zip = new ZipArchive();
             
-            $archFile = pathinfo($log_path . '/' . $file, PATHINFO_FILENAME) . '__' . date('Y-m-d_h-i-s') . '.zip';
-            $archPath = $log_path . '/' . $archFile;
+            $archFile = pathinfo($log_path . DIRECTORY_SEPARATOR . $file, PATHINFO_FILENAME) . '__' . date('Y-m-d_h-i-s') . '.zip';
+            $archPath = $apath . '/' . $archFile;
             
             if ($zip->open($archPath, ZIPARCHIVE::CREATE) !== true) {
                 $this->printJson(JText::_('COM_VLOGS_ARCHIVEFILE_ERROR_CREATE'), false);
@@ -418,7 +431,7 @@ class VlogsModelAjax extends JModelList
                 $zip->close();
             }
     
-			$this->printJson(JText::sprintf('COM_VLOGS_ARCHIVEFILE_ALERT', $file, $archFile), true);
+			$this->printJson(JText::sprintf('COM_VLOGS_ARCHIVEFILE_ALERT', $file, $archPath), true);
 		}
 		else
 		{

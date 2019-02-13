@@ -2,6 +2,7 @@
 <config>
 	<fieldset name="global" label="JGLOBAL_FIELDSET_OPTIONS">
 		<field name="slen" type="text" label="COM_VLOGS_PRM_STRLEN" class="inputbox" default="32768"/>
+		<field name="apath" type="fileselect" folder="/" folderonly="true" label="COM_VLOGS_PRM_ARCHPATH" class="inputbox" default="tmp" addfieldpath="/administrator/components/com_vlogs/models/fields"/>
 	</fieldset>
     <fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
         <field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" validate="rules" filter="rules" component="com_vlogs" section="component"/>
