@@ -1,9 +1,4 @@
 <?php defined('_JEXEC') or die;
-/*
- * @package     com_vlogs
- * @copyright   Copyright (C) 2018 Aleksey A. Morozov (AlekVolsk). All rights reserved.
- * @license     GNU General Public License version 3 or later; see http://www.gnu.org/licenses/gpl-3.0.txt
- */
 
 ?>
 
@@ -99,6 +94,11 @@ document.addEventListener('DOMContentLoaded', function()
 					response = JSON.parse(this.response);
 					if (response.result)
 					{
+						if (response.del) {
+							var sel = document.querySelector('#view_select_files');
+							sel.removeChild(sel.options[sel.selectedIndex]);
+							getLog(sel.value);
+						}
 						Joomla.renderMessages({'info':[response.message]});
 					}
 					else

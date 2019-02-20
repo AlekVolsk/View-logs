@@ -1,8 +1,6 @@
 # View logs
 
-![Github Releases](https://img.shields.io/github/downloads/AlekVolsk/com_vlogs/latest/total.svg)
-
-### Component view the saved logs of core and extensions Joomla
+## Component view the saved logs of core and extensions Joomla
 
 **Scope**:
 
@@ -18,7 +16,7 @@
 
 - (upd 1.2.0) reading PHP error log file (provided that it is installed in php.ini and available for reading from the site)
 
-- (upd 1.3.0) archiving a log file to an archive with a log file name + current datetime (assuming the php-zip extension is connected), the log file is not cleared or deleted, the archive is saved to the site folder specified in the component settings, by default / tmp
+- (upd 1.3.0) archiving a log file to an archive with a log file name + current datetime (assuming the php-zip extension is connected), the archive is saved to the site folder specified in the component settings, by default `/tmp`, where optionally deleting the original file after archiving is also configured
 
 **Requirements**:
 
@@ -26,8 +24,10 @@
 
 - PHP 5.6 or later
 
-**Disadvantage**: the log file is read and displayed entirely, if it is large, it will take time, create a load on resources and traffic, so <br>**Recommendation for extension developers**: with intensive logging provide avtorezina logs into parts, task types, period, either, but that logs your not weighed megatons
+**Disadvantage**: the log file is read and displayed entirely, if it is large, it will take time, create a load on resources and traffic, so
 
-<img src="https://image.prntscr.com/image/pbf3-h1UT8G8QvcGtZ3Hbw.png">
+**Recommendation for extension developers**: with intensive logging provide avtorezina logs into parts, task types, period, either, but that logs your not weighed megatons
+
+![screen](https://image.prntscr.com/image/pbf3-h1UT8G8QvcGtZ3Hbw.png)
 
 About how the native extension to use logging, see the Joomla documentation: https://docs.joomla.org/Using_JLog#Logging_a_specific_log_file
