@@ -9,6 +9,8 @@ class VlogsViewItems extends JViewLegacy
 
 		$this->items = $this->get('Items');
 
+		JHtml::script('media/system/js/core.js', [], ['options' => ['version' => 'auto']]);
+		
 		JToolBarHelper::title(JText::_('COM_VLOGS'), 'health');
 
 		$custom_button_html = '<select id="view_select_files" style="margin-bottom:0">';
