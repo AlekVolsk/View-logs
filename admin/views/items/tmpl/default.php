@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function()
 	
 	getLog = function(vfile)
 	{
-		Joomla.removeMessages();
-
 		document.querySelector('#view_items_list').innerHTML = '';
 		document.querySelector('#view_count_items').innerHTML = '0';
 
@@ -53,8 +51,6 @@ document.addEventListener('DOMContentLoaded', function()
 	
 	delLog = function(vfile)
 	{
-		Joomla.removeMessages();
-
 		request.open('POST', location.protocol + '//' + location.host + location.pathname + '?option=com_vlogs&task=getAjax&action=DelFile&filename=' + vfile);
 		request.send(new URLSearchParams(formData));
 
@@ -83,8 +79,6 @@ document.addEventListener('DOMContentLoaded', function()
 	
 	archLog = function(vfile)
 	{
-		Joomla.removeMessages();
-
 		request.open('POST', location.protocol + '//' + location.host + location.pathname + '?option=com_vlogs&task=getAjax&action=ArchiveFile&filename=' + vfile);
 		request.send(new URLSearchParams(formData));
 
@@ -125,13 +119,11 @@ document.addEventListener('DOMContentLoaded', function()
 	
 	document.querySelector('#view_download_file').addEventListener('click', function(e)
 	{
-		Joomla.removeMessages();
 		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=0&filename=' + document.querySelector('#view_select_files').value;
 	});
 	
 	document.querySelector('#view_download_bom_file').addEventListener('click', function(e)
 	{
-		Joomla.removeMessages();
 		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=1&filename=' + document.querySelector('#view_select_files').value;
 	});
 	
