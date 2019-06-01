@@ -296,21 +296,30 @@ class VlogsModelAjax extends JModelList
 			$fileName = pathinfo(ini_get('error_log'))['filename'];
 		} else {
 			$data = $this->getCSV($log_path . '/' . $file, '	');
+			$base_ci = -1;
 			foreach ($data as $i => $item) {
 				if ($i < 6 && (count($item) < 4 || $item[0][0] == '#')) {
+					if (strpos($item[0], '#Fields:') !== false) {
+						$item[0] = str_replace('#Fields: ', '', $item[0]);
+						foreach ($item as $l => $fname) {
+							if (strtolower($fname) === 'message') {
+								$base_ci = $l;
+								break;
+							}
+						}
+					}
 					unset($data[$i]);
 				} else {
 					if (count($item) == 1) {
 						$item = explode(' ', $item[0]);
 					} else {
-						$ci = count($item) - 1;
+						$ci = $base_ci >= 0 ? $base_ci : count($item) - 1;
 						$msg = $item[$ci];
 						unset($item[$ci]);
 						$item = explode(' ', implode(' ', $item));
-						$item[] = $msg;
+						$item[] = '"' . $msg . '"';
 						unset($msg);
 					}
-
 					$data[$i] = $item;
 				}
 			}
