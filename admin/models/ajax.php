@@ -137,9 +137,13 @@ class VlogsModelAjax extends JModelList
 	public function List()
 	{
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
-		$file = filter_input(INPUT_GET, 'filename');
+		$file = (string)filter_input(INPUT_GET, 'filename');
 		if ($file === 'PHP error log') {
 			$this->ListPHPEL();
+		}
+		if ($file == '') {
+			$html = '<div class="alert">' . JText::_('COM_VLOGS_LIST_EMPTY') . '</div>';
+			$this->printJson($html, true, ['count' => 0]);
 		}
 
 		$columns = '';

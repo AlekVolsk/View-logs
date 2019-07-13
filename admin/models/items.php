@@ -17,7 +17,7 @@ class VlogsModelItems extends JModelList
 		$items = array_values($items);
 
 		$phpErrorLog = ini_get('error_log');
-		if (file_exists($phpErrorLog)) {
+		if ($phpErrorLog && file_exists($phpErrorLog)) {
 			$items[] = 'PHP error log';
 		}
 

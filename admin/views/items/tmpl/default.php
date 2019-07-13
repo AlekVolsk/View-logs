@@ -13,19 +13,20 @@
 	</div>
 </form>
 
-<style>
-.com_vlogs pre {box-sizing:border-box;max-width:100%;width:100%;}
-</style>			
+<?php
 
-<script>
+JFactory::getDocument()->addStyleDeclaration(".com_vlogs pre {box-sizing:border-box;max-width:100%;width:100%;}");
+
+JFactory::getDocument()->addScriptDeclaration("
 document.addEventListener('DOMContentLoaded', function()
 {
 	var
 		request = new XMLHttpRequest(),
 		formData = new FormData(),
-		response = false;
+		response = false,
+		sel = document.querySelector('#view_select_files');
 	
-	Joomla.JText.load({info:"<?php echo JText::_('MESSAGE'); ?>",error:"<?php echo JText::_('ERROR'); ?>"});
+	Joomla.JText.load({info:\"" . JText::_('MESSAGE') . "\",error:\"" . JText::_('ERROR') . "\"});
 	
 	getLog = function(vfile)
 	{
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function()
 					document.querySelector('#view_items_list').innerHTML = response.message;
 					document.querySelector('#view_count_items').innerHTML = response.count;
 				} catch (e) {
+					console.log(response);
 					Joomla.renderMessages({'error':[this.response]});
 					response = false;
 				}
@@ -58,15 +60,11 @@ document.addEventListener('DOMContentLoaded', function()
 			if (this.readyState === 4 && this.status === 200) {
 				try {
 					response = JSON.parse(this.response);
-					if (response.result)
-					{
-						var sel = document.querySelector('#view_select_files');
+					if (response.result) {
 						sel.removeChild(sel.options[sel.selectedIndex]);
 						getLog(sel.value);
 						Joomla.renderMessages({'info':[response.message]});
-					}
-					else
-					{
+					} else {
 						Joomla.renderMessages({'error':[response.message]});
 					}
 				} catch (e) {
@@ -86,17 +84,13 @@ document.addEventListener('DOMContentLoaded', function()
 			if (this.readyState === 4 && this.status === 200) {
 				try {
 					response = JSON.parse(this.response);
-					if (response.result)
-					{
+					if (response.result) {
 						if (response.del) {
-							var sel = document.querySelector('#view_select_files');
 							sel.removeChild(sel.options[sel.selectedIndex]);
 							getLog(sel.value);
 						}
 						Joomla.renderMessages({'info':[response.message]});
-					}
-					else
-					{
+					} else {
 						Joomla.renderMessages({'error':[response.message]});
 					}
 				} catch (e) {
@@ -107,36 +101,48 @@ document.addEventListener('DOMContentLoaded', function()
 		};
 	}
 
-	document.querySelector('#view_select_files').addEventListener('change', function(e)
+	sel.addEventListener('change', function(e)
 	{
 		getLog(e.target.value);
 	});
 	
 	document.querySelector('#view_refresh_file').addEventListener('click', function(e)
 	{
-		getLog(document.querySelector('#view_select_files').value);
+		getLog(sel.value);
 	});
 	
-	document.querySelector('#view_download_file').addEventListener('click', function(e)
-	{
-		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=0&filename=' + document.querySelector('#view_select_files').value;
-	});
+	var dbtn = document.querySelector('#view_download_file');
+	if (dbtn) {
+		dbtn.addEventListener('click', function(e)
+		{
+			document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=0&filename=' + sel.value;
+		});
+	}
 	
-	document.querySelector('#view_download_bom_file').addEventListener('click', function(e)
-	{
-		document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=1&filename=' + document.querySelector('#view_select_files').value;
-	});
-	
-	document.querySelector('#view_delete_file').addEventListener('click', function(e)
-	{
-		delLog(document.querySelector('#view_select_files').value);
-	});
-	
-	document.querySelector('#view_archive_file').addEventListener('click', function(e)
-	{
-		archLog(document.querySelector('#view_select_files').value);
-	});
+	var dbbtn = document.querySelector('#view_download_bom_file');
+	if (dbbtn) {
+		dbbtn.addEventListener('click', function(e)
+		{
+			document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=1&filename=' + sel.value;
+		});
+	}
 
-	getLog(document.querySelector('#view_select_files').value);
+	rbtn = document.querySelector('#view_delete_file');
+	if (rbtn) {
+		rbtn.addEventListener('click', function(e)
+		{
+			delLog(sel.value);
+		});
+	}
+
+	abtn = document.querySelector('#view_archive_file');
+	if (abtn) {
+		abtn.addEventListener('click', function(e)
+		{
+			archLog(sel.value);
+		});
+	}
+
+	getLog(sel.value);
 });
-</script>
+");
