@@ -24,8 +24,11 @@ class VlogsModelAjax extends JModelList
 		$a = [];
 
 		if (($handle = fopen(ini_get('error_log'), 'r')) !== false) {
-			while (($data = fgets($handle)) !== false) {
-				$a[] = $data;
+			while (!feof($handle)) {
+				$data = fgets($handle);
+				if ($data !== false) {
+					$a[] = $data;
+				}
 			}
 			fclose($handle);
 		}
@@ -41,8 +44,11 @@ class VlogsModelAjax extends JModelList
 		$slen = JComponentHelper::getParams('com_vlogs')->get('slen', 32768);
 
 		if (($handle = fopen($file, 'r')) !== false) {
-			while (($data = fgetcsv($handle, $slen, $delimiter)) !== false) {
-				$a[] = $data;
+			while (!feof($handle)) {
+				$data = fgetcsv($handle, $slen, $delimiter);
+				if ($data !== false) {
+					$a[] = $data;
+				}
 			}
 			fclose($handle);
 		}
@@ -78,7 +84,7 @@ class VlogsModelAjax extends JModelList
 			header('Cache-Control: must-revalidate');
 			header('Pragma: public');
 			header('Content-Length: ' . filesize($file));
-			return (bool)readfile($file);
+			return (bool) readfile($file);
 		} else {
 			return false;
 		}
@@ -102,15 +108,29 @@ class VlogsModelAjax extends JModelList
 					continue;
 				}
 				$tmp = explode('] ', $item);
-				$date = substr($tmp[0], 1, strlen($tmp[0]) - 1);
-				$date = explode(' ', $date);
-				$date = new DateTime($date[0] . 'T' . $date[1], new DateTimeZone($date[2]));
-				$date = date_format($date, 'Y-m-d H:i:s');
-				[$type, $msg] = explode(':  ', $tmp[1]);
+				try {
+					if ($tmp[0][0] == '[') {
+						$date = substr($tmp[0], 1, strlen($tmp[0]) - 1);
+						$date = explode(' ', $date);
+						$date = new DateTime($date[0] . 'T' . $date[1], new DateTimeZone($date[2]));
+						$date = date_format($date, 'Y-m-d H:i:s');
+					} else {
+						$date = '';
+					}
+				} catch (Exception $e) {
+					$date = '';
+				}
+				if ($date && count($tmp) > 0) {
+					[$type, $msg] = explode(':  ', $tmp[1]);
+				} else {
+					$type = '';
+					$msg = $item;
+				}
 				$html[] = '<tr>';
 				$html[] = '<td>' . $date . '</td>';
 				switch ($type) {
 					case 'PHP Error':
+					case 'PHP Fatal error':
 						$html[] = '<td class="text-error">' . $type . '</td>';
 						break;
 					case 'PHP Warning':
@@ -137,7 +157,7 @@ class VlogsModelAjax extends JModelList
 	public function List()
 	{
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
-		$file = (string)filter_input(INPUT_GET, 'filename');
+		$file = (string) filter_input(INPUT_GET, 'filename');
 		if ($file === 'PHP error log') {
 			$this->ListPHPEL();
 		}
@@ -203,7 +223,11 @@ class VlogsModelAjax extends JModelList
 
 			foreach ($data as $i => $item) {
 				if (count($item) == 1) {
-					$item = explode(' ', $item[0]);
+					$html[] = '<tr class="row' . ($i % 2) . '">';
+					$html[] = str_repeat('<td></td>', count($columns) - 1);
+					$html[] = '<td>' . $item[0] . '</td>';
+					$html[] = '</tr>';
+					continue;
 				}
 
 				if (count($item) < count($columns)) {
@@ -219,9 +243,14 @@ class VlogsModelAjax extends JModelList
 				foreach ($item as $j => $dataitem) {
 					switch (strtolower($columns[$j])) {
 						case 'datetime':
-							$date = new DateTime($dataitem);
-							$dataitem = $date->format('U');
-							$html[] = '<td class="nowrap">' . JHtml::_('date', $dataitem, 'Y-m-d H:i:s') . '</td>';
+							try {
+								$date = new DateTime($dataitem);
+								$dataitem = $date->format('U');
+								$date = JHtml::_('date', $dataitem, 'Y-m-d H:i:s');
+							} catch (Exception $e) {
+								$date = '';
+							}
+							$html[] = '<td class="nowrap">' . $date . '</td>';
 							break;
 						case 'priority':
 							switch (strtolower($dataitem)) {
@@ -266,7 +295,6 @@ class VlogsModelAjax extends JModelList
 			}
 
 			$html[] = '</tbody></table>';
-
 		} else {
 			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
@@ -278,7 +306,7 @@ class VlogsModelAjax extends JModelList
 	{
 		$log_path = str_replace('\\', '/', JFactory::getConfig()->get('log_path'));
 		$file = filter_input(INPUT_GET, 'filename');
-		$bom = (bool)filter_input(INPUT_GET, 'bom');
+		$bom = (bool) filter_input(INPUT_GET, 'bom');
 		$fpath = str_replace('\\', '/', JFactory::getConfig()->get('tmp_path'));
 
 		if ($file === 'PHP error log') {
@@ -358,7 +386,7 @@ class VlogsModelAjax extends JModelList
 	public function ArchiveFile()
 	{
 		$apath = JComponentHelper::getParams('com_vlogs')->get('apath', 'tmp');
-		$delAfterArch = (int)JComponentHelper::getParams('com_vlogs')->get('delafterarch', 0);
+		$delAfterArch = (int) JComponentHelper::getParams('com_vlogs')->get('delafterarch', 0);
 
 		if (!$apath) {
 			$this->printJson(JText::_('COM_VLOGS_ARCHIVEFILE_NO_FOLDER'), false);
@@ -396,9 +424,9 @@ class VlogsModelAjax extends JModelList
 			}
 
 			$this->printJson(
-				JText::sprintf('COM_VLOGS_ARCHIVEFILE_ALERT_' . (int)($delAfterArch && $resultDel), $file, str_replace(str_replace('\\', '/', JPATH_ROOT), '', $archPath)), 
-				true, 
-				['del' => (int)($delAfterArch && $resultDel)]
+				JText::sprintf('COM_VLOGS_ARCHIVEFILE_ALERT_' . (int) ($delAfterArch && $resultDel), $file, str_replace(str_replace('\\', '/', JPATH_ROOT), '', $archPath)),
+				true,
+				['del' => (int) ($delAfterArch && $resultDel)]
 			);
 		} else {
 			$this->printJson(JText::_('COM_VLOGS_NO_ARCHIVE_PHP_LOG') . '   ' . $file, false);
