@@ -1,21 +1,19 @@
-<?php defined('_JEXEC') or die;
-
-?>
+<?php defined('_JEXEC') or die; ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_vlogs&view=items'); ?>" method="post" name="adminForm" id="adminForm">
 	<div id="j-main-container">
-		
+
 		<div id="view_items_list"></div>
-		
+
 		<input type="hidden" name="task" value="" />
 		<?php echo JHtml::_('form.token'); ?>
-		
+
 	</div>
 </form>
 
 <?php
 
-JFactory::getDocument()->addStyleDeclaration(".com_vlogs pre {box-sizing:border-box;max-width:100%;width:100%;}");
+JFactory::getDocument()->addStyleDeclaration(".com_vlogs pre {box-sizing:border-box;margin-top:10px;padding:10px;max-width:100%;width:100%;border:1px solid #ddd;background-color:#fefefe;} .com_vlogs .table td, .com_vlogs .table th {vertical-align:top;}");
 
 JFactory::getDocument()->addScriptDeclaration("
 document.addEventListener('DOMContentLoaded', function()

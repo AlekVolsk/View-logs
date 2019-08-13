@@ -148,7 +148,7 @@ class VlogsModelAjax extends JModelList
 			}
 			$html[] = '</tbody></table>';
 		} else {
-			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
+			$html[] = '<div class="alert alert-primary">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
 
 		$this->printJson(implode('', $html), true, ['count' => $cnt]);
@@ -162,7 +162,7 @@ class VlogsModelAjax extends JModelList
 			$this->ListPHPEL();
 		}
 		if ($file == '') {
-			$html = '<div class="alert">' . JText::_('COM_VLOGS_LIST_EMPTY') . '</div>';
+			$html = '<div class="alert alert-primary">' . JText::_('COM_VLOGS_LIST_EMPTY') . '</div>';
 			$this->printJson($html, true, ['count' => 0]);
 		}
 
@@ -285,7 +285,7 @@ class VlogsModelAjax extends JModelList
 						case 'message':
 							$json = json_decode($dataitem, true);
 							$json_result = json_last_error() === JSON_ERROR_NONE;
-							$html[] = '<td>' . ($json_result ? '<p><a onclick="jQuery(this).parent().next(\'pre\').slideToggle(200);" style="cursor:pointer">' . JText::_('COM_VLOGS_COLUMN_MSG_JSON_TITLE') . '</a></p><pre style="display:none">' . print_r($json, true) . '</pre>' : htmlspecialchars($dataitem)) . '</td>';
+							$html[] = '<td>' . ($json_result ? '<div><a href="javascript:void(0)" onclick="jQuery(this).parent().next(\'pre\').slideToggle(200);" style="cursor:pointer">' . JText::_('COM_VLOGS_COLUMN_MSG_JSON_TITLE') . '</a></div><pre style="display:none">' . print_r($json, true) . '</pre>' : htmlspecialchars($dataitem)) . '</td>';
 							break;
 						default:
 							$html[] = '<td>' . $dataitem . '</td>';
@@ -296,7 +296,7 @@ class VlogsModelAjax extends JModelList
 
 			$html[] = '</tbody></table>';
 		} else {
-			$html[] = '<div class="alert">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
+			$html[] = '<div class="alert alert-primary">' . JText::_('COM_VLOGS_DATA_EMPTY') . '</div>';
 		}
 
 		$this->printJson(implode('', $html), true, ['count' => $cnt]);

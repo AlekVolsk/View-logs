@@ -1,12 +1,14 @@
 # View logs
 
-![Version](https://img.shields.io/badge/VERSION-1.3.7-0366d6.svg?style=for-the-badge)
+![Version](https://img.shields.io/badge/VERSION-1.3.4-0366d6.svg?style=for-the-badge)
 ![Joomla](https://img.shields.io/badge/joomla-3.2+-1A3867.svg?style=for-the-badge)
 ![Php](https://img.shields.io/badge/php-5.6+-8892BF.svg?style=for-the-badge)
 
 _description in Russian [here](README.ru.md)_
 
 ## Component view the saved logs of core and extensions Joomla
+
+### Powered by Joomla!4
 
 **Scope**:
 

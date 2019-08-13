@@ -1,4 +1,4 @@
-<?php defined( '_JEXEC' ) or die;
+<?php defined('_JEXEC') or die;
 /*
  * @package     com_vlogs
  * @copyright   Copyright (C) 2019 Aleksey A. Morozov (AlekVolsk). All rights reserved.
