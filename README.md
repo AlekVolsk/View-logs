@@ -27,4 +27,4 @@ _description in Russian [here](README.ru.md)_
 
 ![screen](https://image.prntscr.com/image/pbf3-h1UT8G8QvcGtZ3Hbw.png)
 
-About how the native extension to use logging, see the Joomla documentation: https://docs.joomla.org/Using_JLog#Logging_a_specific_log_file
+About how the native extension to use logging, see the Joomla documentation: https://docs.joomla.org/Using_JLog#Logging_to_a_Specific_Log_File
