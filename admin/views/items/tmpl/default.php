@@ -1,4 +1,8 @@
-<?php defined('_JEXEC') or die; ?>
+<?php
+defined('_JEXEC') or die;
+
+JHtml::_('jquery.framework', true, null, false);
+?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_vlogs&view=items'); ?>" method="post" name="adminForm" id="adminForm">
 	<div id="j-main-container">
@@ -23,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function()
 		formData = new FormData(),
 		response = false,
 		sel = document.querySelector('#view_select_files');
-	
+
 	Joomla.JText.load({info:\"" . JText::_('MESSAGE') . "\",error:\"" . JText::_('ERROR') . "\"});
-	
+
 	getLog = function(vfile)
 	{
 		document.querySelector('#view_items_list').innerHTML = '';
@@ -48,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function()
 			}
 		};
 	}
-	
+
 	delLog = function(vfile)
 	{
 		request.open('POST', location.protocol + '//' + location.host + location.pathname + '?option=com_vlogs&task=getAjax&action=DelFile&filename=' + vfile);
@@ -72,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function()
 			}
 		};
 	}
-	
+
 	archLog = function(vfile)
 	{
 		request.open('POST', location.protocol + '//' + location.host + location.pathname + '?option=com_vlogs&task=getAjax&action=ArchiveFile&filename=' + vfile);
@@ -103,12 +107,12 @@ document.addEventListener('DOMContentLoaded', function()
 	{
 		getLog(e.target.value);
 	});
-	
+
 	document.querySelector('#view_refresh_file').addEventListener('click', function(e)
 	{
 		getLog(sel.value);
 	});
-	
+
 	var dbtn = document.querySelector('#view_download_file');
 	if (dbtn) {
 		dbtn.addEventListener('click', function(e)
@@ -116,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function()
 			document.location.href = 'index.php?option=com_vlogs&task=getAjax&action=dwFile&bom=0&filename=' + sel.value;
 		});
 	}
-	
+
 	var dbbtn = document.querySelector('#view_download_bom_file');
 	if (dbbtn) {
 		dbbtn.addEventListener('click', function(e)
