@@ -6,6 +6,8 @@
 
 _description in Russian [here](README.ru.md)_
 
+IMPORTANT! Release 1.3.9 is final, further support of this extension is not planned.
+
 ## Component view the saved logs of core and extensions Joomla
 
 ### Powered by Joomla!4
